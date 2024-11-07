@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st # type: ignore
 
 st.title("GRCi")
 st.write(
