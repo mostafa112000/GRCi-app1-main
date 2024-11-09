@@ -15,7 +15,7 @@ class MultiApp:
     def __init__(self):
         self.apps = []
 
-    def add_app(self, title, func):
+    def add_app(self, title, function):
 
         self.apps.append({
             "title": title,
@@ -28,14 +28,14 @@ class MultiApp:
             app = option_menu(
                 menu_title='GRCi ',
                 options=['Home','Account','About','Pioneer'],
-                icons=['house-fill','person-circle','trophy-fill','chat-fill','info-circle-fill'],
+                icons=['house-fill','person-circle','info-circle-fill','chat-fill'],
                 menu_icon='chat-text-fill',
                 default_index=1,
                 styles={
                     "container": {"padding": "5!important","background-color":'black'},
-        "icon": {"color": "white", "font-size": "23px"}, 
-        "nav-link": {"color":"white","font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "blue"},
-        "nav-link-selected": {"background-color": "#02ab21"},}
+                    "icon": {"color": "white", "font-size": "23px"}, 
+                    "nav-link": {"color":"white","font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "blue"},
+                    "nav-link-selected": {"background-color": "#02ab21"},}
                 
                 )
 
