@@ -1,4 +1,4 @@
 import streamlit as st
 
 def app():
-    st.write("Home")
+    st.title("Welcome to :green[GRCi] ⚡")
