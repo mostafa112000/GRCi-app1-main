@@ -12,7 +12,7 @@ from demo_pyecharts import ST_PY_DEMOS
 
 
 def app():
-    st.title("Streamlit ECharts Demo")
+    st.title("`ECharts Demo`")
 
     #with st.sidebar:
     st.header("Configuration")
