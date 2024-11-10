@@ -12,7 +12,7 @@ cred = credentials.Certificate("grci-app1-3771d455d2f5.json")
 from streamlit_option_menu import option_menu
 
 
-import home, account, about, pioneer
+import home, account, chart, pioneer
 st.set_page_config(
         page_title="GRCi",
 )
@@ -180,7 +180,7 @@ class MultiApp:
                     with st.sidebar:
                         app = option_menu(
                             menu_title='GRCi ',
-                            options=['Home','Account','About','Pioneer'],
+                            options=['Home','Account','Chart','Pioneer'],
                             icons=['house-fill','person-circle','info-circle-fill','chat-fill'],
                             menu_icon='chat-text-fill',
                             default_index=0,
@@ -199,8 +199,8 @@ class MultiApp:
                         account.app() 
                         st.text('Name: '+st.session_state.username)
                         st.text('Email id: '+st.session_state.useremail)
-                    if app == 'About':
-                        about.app()    
+                    if app == 'Chart':
+                        chart.app()    
                     if app=='Pioneer':
                         pioneer.app()                  
                         
