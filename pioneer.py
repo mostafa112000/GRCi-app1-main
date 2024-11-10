@@ -1,33 +1,33 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForCausalLM
-import subprocess
+import torch
 
 def app():
-
+    
     # App title
     st.title("`Pioneer+` ")
-    #st.header("`Chat`")
+    # Load the tokenizer and model
+    @st.cache_resource
+    def load_model():
+        MODEL_NAME = "distilgpt2"  # A smaller model for testing
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.float32)
+        return tokenizer, model
 
-    # Sidebar configuration for user inputs
-    #with st.sidebar:
-        #max_tokens = st.slider('Max Tokens', 10, 500, 100)
-        #temperature = st.slider('Temperature', 0.0, 1.0, 0.7, 0.05)
+    tokenizer, model = load_model()
 
-    # Function to generate response using Ollama
+    # Function to generate response
     def generate_response(prompt):
-        try:
-            # Run the Ollama model with the given prompt
-            result = subprocess.run(
-                ["ollama", "run", "llama3.2:1b"],
-                input=prompt,
-                text=True,
-                capture_output=True,
-                check=True
-            )
-            return result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            st.error(f"Error: {e.stderr}")  # Display the detailed error in Streamlit
-            return "An error occurred while generating the response."
+        inputs = tokenizer(prompt, return_tensors="pt")
+        output = model.generate(
+            **inputs,
+            max_new_tokens=100,
+            do_sample=True,
+            temperature=0.7,
+            top_p=0.95
+        )
+        response = tokenizer.decode(output[0], skip_special_tokens=True)
+        return response[len(prompt):].strip()
 
     # Initialize chat history
     if "messages" not in st.session_state:
