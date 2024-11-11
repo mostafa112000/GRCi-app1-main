@@ -40,6 +40,17 @@ class MultiApp:
                 st.session_state.useremail = ''
 
 
+            def get_friendly_error_message(error_code):
+                error_messages = {
+                    "MISSING_EMAIL": "Please enter your email address.",
+                    "EMAIL_EXISTS": "This email is already in use. Please try a different one or sign in.",
+                    "INVALID_PASSWORD": "The password you entered is incorrect. Please try again.",
+                    "EMAIL_NOT_FOUND": "No account found with this email. Please check your email or sign up.",
+                    "USER_DISABLED": "This account has been disabled. Please contact support.",
+                    # Add more error codes and messages as needed
+                }
+                return error_messages.get(error_code, "An unexpected error occurred. Please try again.")
+
             def sign_up_with_email_and_password(email, password, username=None, return_secure_token=True):
                 try:
                     rest_api_url = "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
@@ -49,39 +60,39 @@ class MultiApp:
                         "returnSecureToken": return_secure_token
                     }
                     if username:
-                        payload["displayName"] = username 
+                        payload["displayName"] = username
                     payload = json.dumps(payload)
                     r = requests.post(rest_api_url, params={"key": "AIzaSyApr-etDzcGcsVcmaw7R7rPxx3A09as7uw"}, data=payload)
-                    try:
-                        return r.json()['email']
-                    except:
-                        st.warning(r.json())
+                    response_data = r.json()
+                    
+                    if "error" in response_data:
+                        error_code = response_data["error"]["message"]
+                        st.warning(get_friendly_error_message(error_code))
+                    else:
+                        return response_data['email']
                 except Exception as e:
                     st.warning(f'Signup failed: {e}')
 
             def sign_in_with_email_and_password(email=None, password=None, return_secure_token=True):
                 rest_api_url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
-
                 try:
                     payload = {
+                        "email": email,
+                        "password": password,
                         "returnSecureToken": return_secure_token
                     }
-                    if email:
-                        payload["email"] = email
-                    if password:
-                        payload["password"] = password
                     payload = json.dumps(payload)
-                    print('payload sigin',payload)
                     r = requests.post(rest_api_url, params={"key": "AIzaSyApr-etDzcGcsVcmaw7R7rPxx3A09as7uw"}, data=payload)
-                    try:
-                        data = r.json()
-                        user_info = {
-                            'email': data['email'],
-                            'username': data.get('displayName')  # Retrieve username if available
+                    response_data = r.json()
+                    
+                    if "error" in response_data:
+                        error_code = response_data["error"]["message"]
+                        st.warning(get_friendly_error_message(error_code))
+                    else:
+                        return {
+                            'email': response_data['email'],
+                            'username': response_data.get('displayName')
                         }
-                        return user_info
-                    except:
-                        st.warning(data)
                 except Exception as e:
                     st.warning(f'Signin failed: {e}')
 
@@ -94,14 +105,16 @@ class MultiApp:
                     }
                     payload = json.dumps(payload)
                     r = requests.post(rest_api_url, params={"key": "AIzaSyApr-etDzcGcsVcmaw7R7rPxx3A09as7uw"}, data=payload)
+                    response_data = r.json()
+                    
                     if r.status_code == 200:
-                        return True, "Reset email Sent"
+                        return True, "A password reset email has been sent."
                     else:
-                        # Handle error response
-                        error_message = r.json().get('error', {}).get('message')
-                        return False, error_message
+                        error_code = response_data.get('error', {}).get('message')
+                        return False, get_friendly_error_message(error_code)
                 except Exception as e:
                     return False, str(e)
+
 
             # Example usage
             # email = "example@example.com"
@@ -148,34 +161,41 @@ class MultiApp:
                 
             
             if  not st.session_state["signedout"]: # only show if the state is False, hence the button has never been clicked
-                choice = st.selectbox('Login/Signup',['Login','Sign up'])
-                email = st.text_input('Email Address')
-                password = st.text_input('Password',type='password')
-                st.session_state.email_input = email
-                st.session_state.password_input = password
+                st.header('*`Login to continue`*')
+                with st.sidebar:    
+                    choice = st.selectbox('Login/Signup',['Login','Sign up'])
+                    email = st.text_input('Email Address')
+                    password = st.text_input('Password',type='password')
+                    st.session_state.email_input = email
+                    st.session_state.password_input = password
 
-                
-
-                
-                if choice == 'Sign up':
-                    username = st.text_input("Enter  your unique username")
                     
-                    if st.button('Create my account'):
-                        # user = auth.create_user(email = email, password = password,uid=username)
-                        user = sign_up_with_email_and_password(email=email,password=password,username=username)
+
+                    
+                    if choice == 'Sign up':
+                        username = st.text_input("Enter  your unique username")
                         
-                        st.success('Account created successfully!')
-                        st.markdown('Please Login using your email and password')
-                        st.balloons()
-                else:
-                    # st.button('Login', on_click=f)          
-                    st.button('Login', on_click=f)
-                    # if st.button('Forget'):
-                    
-                    # st.button('Forget',on_click=forget)
+                        if st.button('Create my account'):
+                            # user = auth.create_user(email = email, password = password,uid=username)
+                            user = sign_up_with_email_and_password(email=email,password=password,username=username)
+                            if user:
+                                st.success('Account created successfully!')
+                                st.markdown('Please Login using your email and password')
+                                st.balloons()
+                            
+                            else:
+                                st.warning('''Account not created! check your data
+                                           note: password lenght should be 6 characters or more
+                                           ''')
+                    else:
+                        # st.button('Login', on_click=f)          
+                        st.button('Login', on_click=f)
+                        # if st.button('Forget'):
+                        
+                        # st.button('Forget',on_click=forget)
 
-                    
-                    
+                        
+                        
             if st.session_state.signout:
                     with st.sidebar:
                         app = option_menu(
