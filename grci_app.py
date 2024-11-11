@@ -14,7 +14,7 @@ from streamlit_option_menu import option_menu
 
 import home, account, chart, pioneer
 st.set_page_config(
-        page_title="GRCi",
+        page_title="GRCi", page_icon="logo.png", layout="wide"
 )
 
 
@@ -193,14 +193,16 @@ class MultiApp:
                             )
 
                         st.button('Sign out', on_click=t) 
+                        
                     if app == "Home":
                         home.app()
+                        
                     if app == "Account":
                         account.app() 
-                        st.text('Name: '+st.session_state.username)
-                        st.text('Email id: '+st.session_state.useremail)
+                        
                     if app == 'Chart':
-                        chart.app()    
+                        chart.app()   
+                         
                     if app=='Pioneer':
                         pioneer.app()                  
                         
