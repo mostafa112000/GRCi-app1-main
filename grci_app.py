@@ -162,7 +162,8 @@ class MultiApp:
             
             if  not st.session_state["signedout"]: # only show if the state is False, hence the button has never been clicked
                 st.header('*`Login to continue`*')
-                with st.sidebar:    
+                with st.sidebar: 
+                    st.title('GRCi')    
                     choice = st.selectbox('Login/Signup',['Login','Sign up'])
                     email = st.text_input('Email Address')
                     password = st.text_input('Password',type='password')
